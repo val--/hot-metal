@@ -10,12 +10,12 @@ export interface Entity {
     id: string;
 }
 
-interface IArtist {
+export interface IArtist {
     id: string,
     name: string,
 }
 
-interface IAlbumsCover {
+export interface IAlbumsCover {
     height: string,
     width: string,
     url: string,

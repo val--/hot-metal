@@ -14,7 +14,7 @@ const ReleasePages = () => {
                     <Typography variant="h2" gutterBottom>
                         Latest Spotify releases
                     </Typography>
-                    <ReleaseListPage />
+                    <ReleaseListPage numberOfReleases={50} />
                 </>
             </Route>
         </Switch>
