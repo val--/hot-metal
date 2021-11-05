@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { Grid, CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 
@@ -15,10 +16,14 @@ interface ReleaseListPageProps {
 const ReleaseListPage = ({ numberOfReleases }: ReleaseListPageProps) => {
 
     const qs = require('qs');
-    const limit:number = numberOfReleases || 50;
-    const [releases, setReleases]: [IRelease[], (releases: IRelease[]) => void] = React.useState(defaultReleases);
-    const [loading, setLoading]: [boolean, (loading: boolean) => void] = React.useState<boolean>(true);
-    const [error, setError]: [string, (error: string) => void] = React.useState('',);
+
+    const [limit, setLimit] = useState(50);
+    const [offset, setOffset] = useState(0);
+    const [page, setPage] = useState(0);
+
+    const [releases, setReleases]: [IRelease[], (releases: IRelease[]) => void] = useState(defaultReleases);
+    const [loading, setLoading]: [boolean, (loading: boolean) => void] = useState<boolean>(true);
+    const [error, setError]: [string, (error: string) => void] = useState('',);
 
     const getAuth = async () => {
         try {
@@ -42,34 +47,42 @@ const ReleaseListPage = ({ numberOfReleases }: ReleaseListPageProps) => {
     const getLatestReleases = async () => {
         const access_token = await getAuth();
         try {
-            const response = await axios.get(`${API_SPOTIFY_BASE_URL}browse/new-releases/?limit=${limit}`, {
+            const response = await axios.get(`${API_SPOTIFY_BASE_URL}browse/new-releases/?limit=${limit}&offset=${offset}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`,
                 },
             });
             setLoading(false);
-            setReleases(response.data.albums.items);
+            if(!response.data.albums.next) {
+                //return;
+            }
+            setReleases(releases.concat(response.data.albums.items))
+            setOffset(offset+limit);
+            setPage(page+1);
         } catch (error) {
             setLoading(false);
             console.log(error);
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         getLatestReleases();
     }, []);
 
     return (
         <div>
             {loading && <CircularProgress size={32} />}
-            <Grid container spacing={2}>
-                {releases.map((release) =>
-                    <Grid item xs={6} md={4} lg={3} xl={2}>
-                        <ReleasePreview release={release}/>
-                    </Grid>
-                )}
-                {error && <p className='error'>{error}</p>}
-            </Grid>
+            <InfiniteScroll dataLength={releases.length} next={getLatestReleases} hasMore={true} loader={<span>Loading...</span>}>
+                <Grid container spacing={2}>
+                    {releases.map((release) =>
+                        <Grid item xs={8} md={4} lg={3} xl={2} key={release.id}>
+                            <ReleasePreview release={release}/>
+                        </Grid>
+                    )}
+                    {error && <p className='error'>{error}</p>}
+                </Grid>
+                <p>{ page } </p>
+            </InfiniteScroll>
         </div>
     );
 };

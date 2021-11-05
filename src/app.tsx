@@ -17,10 +17,10 @@ export const App = () => {
                 <Header />
                 <main>
                     <Switch>
-                        <Route path="/Releases">
+                        <Route path="/releases">
                             <ReleasesRoutes />
                         </Route>
-                        <Redirect exact path="/" to="/Releases" />
+                        <Redirect exact path="/" to="/releases" />
                         <Route>
                             <h1>404</h1>
                         </Route>

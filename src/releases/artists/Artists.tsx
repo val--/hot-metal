@@ -22,7 +22,7 @@ const ArtistNames = styled.span`
 const Artists = ({ artists }: MultipleArtistsProps) => {
     return (
         <ArtistNames>
-            {artists.map((artist) => <span className='artistName'>{ artist.name} </span> )}
+            {artists.map((artist) => <span className='artistName' key={artist.id}>{ artist.name} </span> )}
         </ArtistNames>
     );
 };
